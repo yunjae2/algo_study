@@ -19,22 +19,22 @@ struct queue {
 	struct position pos[N_MAX * M_MAX];
 };
 
-void map_init(FILE *in, int *N_ptr, int *M_ptr, int *map)
+void map_init(int *N_ptr, int *M_ptr, int *map)
 {
 	int i, j;
 	int width, height;
 	char c;
 
-	fscanf(in, "%d %d\n", M_ptr, N_ptr);
+	scanf("%d %d\n", M_ptr, N_ptr);
 	width = *M_ptr;
 	height = *N_ptr;
 
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
-			fscanf(in, "%c", &c);
+			c = getchar();
 			map(i, j) = c - '0';
 		}
-		fscanf(in, "\n");
+		c = getchar();
 	}
 }
 
@@ -105,22 +105,17 @@ int find_path(int height, int width, int *map)
 	return nr_break(y, x);
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
 	int N, M;
 	int map[N_MAX * M_MAX];
 	int res;
 
-	FILE *in = fopen("input.txt", "r");
-	FILE *out = fopen("output.txt", "w");
-	
-	map_init(in, &N, &M, map);
+	map_init(&N, &M, map);
 
 	res = find_path(N, M, map);
 	
-	fprintf(out, "%d\n", res);
+	printf("%d\n", res);
 
-	fclose(in);
-	fclose(out);
 	return 0;
 }
