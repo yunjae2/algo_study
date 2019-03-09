@@ -2,6 +2,7 @@
 !*.*
 !*/
 !*Makefile
+!problem
 
 *.o
 *.txt
