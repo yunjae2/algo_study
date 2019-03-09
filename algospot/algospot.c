@@ -25,6 +25,7 @@ void map_init(FILE *in, int *N_ptr, int *M_ptr, int *map)
 	int width, height;
 	char c;
 
+	printf("%s start\n", __func__);
 	fscanf(in, "%d %d\n", M_ptr, N_ptr);
 	width = *M_ptr;
 	height = *N_ptr;
@@ -36,6 +37,14 @@ void map_init(FILE *in, int *N_ptr, int *M_ptr, int *map)
 		}
 		fscanf(in, "\n");
 	}
+
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			printf("%d", map(i, j));
+		}
+		printf("\n");
+	}
+	printf("%s end\n", __func__);
 }
 
 int find_path(int height, int width, int *map)
@@ -52,6 +61,7 @@ int find_path(int height, int width, int *map)
 
 	int angle;
 
+	printf("%s start\n", __func__);
 	for (y = 0; y < height; y++) 
 		for (x = 0; x < width; x++)
 			nr_break(y, x) = height * width;
@@ -61,6 +71,7 @@ int find_path(int height, int width, int *map)
 	x = 0;
 	y = 0;
 	while(x != width - 1 || y != height - 1) {
+		printf("[%d, %d]\n", x, y);
 		for (angle = 0; angle < 4; angle++) {
 			sx = x + dir_x[angle];
 			sy = y + dir_y[angle];
@@ -75,12 +86,14 @@ int find_path(int height, int width, int *map)
 				if (sx == width - 1 && sy == height - 1)
 					return nr_break(y, x);
 
+				printf("\t[%d, %d]: room\n", sx, sy);
 				nr_break(sy, sx) = nr_break(y, x);
 				room_queue.pos[room_queue.rear].x = sx;
 				room_queue.pos[room_queue.rear].y = sy;
 				room_queue.rear++;
 			} else if (map(sy, sx) == 1 &&
 					nr_break(sy, sx) > nr_break(y, x) + 1) {
+				printf("\t[%d, %d]: wall\n", sx, sy);
 				nr_break(sy, sx) = nr_break(y, x) + 1;
 				wall_queue.pos[wall_queue.rear].x = sx;
 				wall_queue.pos[wall_queue.rear].y = sy;
