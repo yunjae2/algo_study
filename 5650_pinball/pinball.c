@@ -225,8 +225,8 @@ int __follow_path(int start_y, int start_x, int width,
 				warf_pos = wormhole_pos(wormhole_id, 0);
 			}
 
-			y = warf_pos / (width + 2);
-			x = warf_pos % (width + 2);
+			y = warf_pos / (width + 2) - 1;
+			x = warf_pos % (width + 2) - 1;
 		}
 		else {
 			ref_dir = reflect_dir(obj, dir);
