@@ -20,7 +20,7 @@ void map_init(int *width_ptr, int *map)
 	}
 }
 
-void do_pinball(int width, int *map)
+int do_pinball(int width, int *map)
 {
 	int x, y;
 
@@ -30,6 +30,11 @@ void do_pinball(int width, int *map)
 		}
 		printf("\n");
 	}
+}
+
+void print_result(int testnum, int result)
+{
+	printf("#%d %d\n", testnum, result);
 }
 
 void solve_pinball(void)
@@ -42,7 +47,8 @@ void solve_pinball(void)
 
 	for (t = 0; t < T; t++) {
 		map_init(&N, map);
-		do_pinball(N, map);
+		max_point = do_pinball(N, map);
+		print_result(t, max_point);
 	}
 }
 int main(void)
