@@ -325,7 +325,7 @@ void solve_pinball(void)
 	int t;
 	scanf("%d\n", &T);
 
-	for (t = 0; t < T; t++) {
+	for (t = 1; t <= T; t++) {
 		map_init(&N, map, wormhole_pos);
 		max_point = do_pinball(N, map, wormhole_pos);
 		print_result(t, max_point);
