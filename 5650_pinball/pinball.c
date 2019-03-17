@@ -167,15 +167,26 @@ int __follow_path(int start_y, int start_x, int width,
 			x = warf_pos % (width + 2) - 1;
 		}
 		else {
-			ref_dir = reflect_dir(obj, dir);
-			if (ref_dir == opposite[dir]) {
-				end_point = current_point;
-				end_obj = obj;
-				break;
+			if (obj != way) {
+				ref_dir = reflect_dir(obj, dir);
+				if (ref_dir == opposite[dir]) {
+					end_point = current_point;
+					end_obj = obj;
+					break;
+				}
+
+				current_point++;
+				dir = ref_dir;
 			}
 
-			current_point++;
-			dir = ref_dir;
+			if (tracer(y, x) == start_pos &&
+					max_point <
+					current_point - point_trace(y, x)) {
+				max_point = current_point - point_trace(y, x);
+			}
+
+			point_trace(y, x) = current_point;
+			tracer(y, x) = start_pos;
 		}
 	}
 
@@ -276,16 +287,9 @@ int do_pinball(int width, enum object *map, int *wormhole_pos)
 	int path_point;
 	int max_point;
 
-	int pos_checked[(N_MAX + 2) * (N_MAX + 2)];
-	int point_trace[(N_MAX + 2) * (N_MAX + 2)];
-	int tracer[(N_MAX + 2) * (N_MAX + 2)];
-
-	for (y = 0; y < width; y++) {
-		for (x = 0; x < width; x++) {
-			point_trace(y, x) = 0;
-			tracer(y, x) = 0;
-		}
-	}
+	int pos_checked[(N_MAX + 2) * (N_MAX + 2)] = {0, };
+	int point_trace[(N_MAX + 2) * (N_MAX + 2)] = {0, };
+	int tracer[(N_MAX + 2) * (N_MAX + 2)] = {0, };
 
 	max_point = 0;
 	for (y = -1; y <= width; y++) {
