@@ -3,7 +3,7 @@ OBJS		:= $(SRCS:.c=.o)
 TARGET		:= pinball
 
 CC		:= gcc
-CFLAGS		:= -std=c99
+CFLAGS		:= -std=c99 -Wall
 
 
 all: $(TARGET)
