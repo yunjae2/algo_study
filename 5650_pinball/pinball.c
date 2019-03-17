@@ -1,10 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define N_MAX		100
-#define map(y, x)	( map[y * width + x] ) 
+#define N_MAX			100
+#define map(y, x)		( map[(y + 1) * (width + 2) + x + 1] )
+#define pos_checked(y, x)	( pos_checked[(y + 1) * (width + 2) + x + 1] )
 
-void map_init(int *width_ptr, int *map)
+enum object {
+	blackhole = -1,
+	way,
+	block_NE,	// direction of normal vector
+	block_SE,
+	block_SW,
+	block_NW,
+	block_square,
+	wormhole_1,
+	wormhole_2,
+	wormhole_3,
+	wormhole_4,
+	wormhole_5,
+	wall_N,
+	wall_E,
+	wall_S,
+	wall_W
+};
+
+
+void map_init(int *width_ptr, enum object *map)
 {
 	int x, y;
 	int width;
@@ -18,18 +39,31 @@ void map_init(int *width_ptr, int *map)
 		}
 		scanf("\n");
 	}
+
+	for (x = 0; x < width; x++) {
+		map(-1, x) = wall_S;
+		map(width, x) = wall_N;
+	}
+
+	for (y = 0; y < width; y++) {
+		map(y, -1) = wall_E;
+		map(y, width) = wall_W;
+	}
 }
 
-int do_pinball(int width, int *map)
+int do_pinball(int width, enum object *map)
 {
 	int x, y;
 
-	for (y = 0; y < width; y++) {
-		for (x = 0; x < width; x++) {
-			printf("%d ", map(y, x));
+	int pos_checked[(N_MAX + 2) * (N_MAX + 2)];
+
+	for (y = -1; y <= width; y++) {
+		for (x = -1; x <= width; x++) {
+			pos_checked(y, x) = 0;
 		}
-		printf("\n");
 	}
+
+	return 0;
 }
 
 void print_result(int testnum, int result)
@@ -40,7 +74,8 @@ void print_result(int testnum, int result)
 void solve_pinball(void)
 {
 	int T, N;
-	int map[N_MAX * N_MAX];
+	int max_point;
+	enum object map[(N_MAX + 2) * (N_MAX + 2)];
 
 	int t;
 	scanf("%d\n", &T);
