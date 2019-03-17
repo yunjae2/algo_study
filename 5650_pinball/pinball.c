@@ -330,6 +330,7 @@ void solve_pinball(void)
 
 int main(void)
 {
+	setbuf(stdout, NULL);
 	solve_pinball();	
 	return 0;
 }
