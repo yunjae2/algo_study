@@ -61,6 +61,10 @@ enum direction reflect_dir[NR_OBJECT_TYPES][NR_DIRECTIONS] = {
 
 enum direction opposite[NR_DIRECTIONS] = {S, W, N, E, };
 
+struct out_dirs {
+	int dirs[4];
+};
+
 void map_init(int *width_ptr, enum object *map, int *wormhole_pos)
 {
 	int x, y;
@@ -115,7 +119,7 @@ void map_init(int *width_ptr, enum object *map, int *wormhole_pos)
 
 int __follow_path(int start_y, int start_x, int width,
 		enum direction start_dir, enum object *map, int *wormhole_pos,
-		int *point_trace, int *tracer)
+		int *point_trace, int *tracer, struct out_dirs *pos_checked)
 {
 	int wormhole_id;
 	int warf_pos;
@@ -132,22 +136,23 @@ int __follow_path(int start_y, int start_x, int width,
 	int x = start_x;
 	int dir = start_dir;
 	int current_point = 0;
-	int start_pos = (y + 1) * (width + 2) + (x + 1);
+	int start_state = ((y + 1) * (width + 2) + (x + 1)) * 4 + dir;
 
 	while (1) {
+		pos_checked(y, x).dirs[dir] = 1;
 		y += y_dir[dir];
 		x += x_dir[dir];
 		obj = map(y, x);
 
 		if (obj == way) {
-			if (tracer(y, x) == start_pos &&
+			if (tracer(y, x) == start_state &&
 					max_point <
 					current_point - point_trace(y, x)) {
 				max_point = current_point - point_trace(y, x);
 			}
 
 			point_trace(y, x) = current_point;
-			tracer(y, x) = start_pos;
+			tracer(y, x) = start_state;
 		}
 		else if (obj == blackhole) {
 			end_point = current_point;
@@ -178,15 +183,6 @@ int __follow_path(int start_y, int start_x, int width,
 				current_point++;
 				dir = ref_dir;
 			}
-
-			if (tracer(y, x) == start_pos &&
-					max_point <
-					current_point - point_trace(y, x)) {
-				max_point = current_point - point_trace(y, x);
-			}
-
-			point_trace(y, x) = current_point;
-			tracer(y, x) = start_pos;
 		}
 	}
 
@@ -209,8 +205,8 @@ int __follow_path(int start_y, int start_x, int width,
 
 				if (max_point < point) {
 					max_point = point;
-					break;
 				}
+				break;
 			}
 		}
 		else if (obj == blackhole) {
@@ -244,8 +240,113 @@ int __follow_path(int start_y, int start_x, int width,
 	return max_point;
 }
 
+int __follow_path_cycle(int start_y, int start_x, int width,
+		enum direction start_dir, enum object *map, int *wormhole_pos,
+		int *point_trace, int *tracer, struct out_dirs *pos_checked)
+{
+	int wormhole_id;
+	int warf_pos;
+
+	enum object obj;
+	enum object end_obj;
+
+	int ref_dir;
+	int point;
+	int end_point;
+	int max_point = 0;
+
+	int y = start_y;
+	int x = start_x;
+	int dir = start_dir;
+	int current_point = 0;
+	int start_state = ((y + 1) * (width + 2) + (x + 1)) * 4 + dir;
+
+	pos_checked(y, x).dirs[dir] = 1;
+	while (1) {
+		y += y_dir[dir];
+		x += x_dir[dir];
+		obj = map(y, x);
+
+		if (y == start_y && x == start_x) {
+			end_point = current_point + 1;
+			break;
+		}
+
+		if (obj == way) {
+			if (tracer(y, x) == start_state &&
+					max_point <
+					current_point - point_trace(y, x)) {
+				max_point = current_point - point_trace(y, x);
+			}
+
+			point_trace(y, x) = current_point;
+			tracer(y, x) = start_state;
+		}
+		else if (obj >= wormhole_1 && obj <= wormhole_5) {
+			wormhole_id = obj - wormhole_1;
+			if (wormhole_pos(wormhole_id, 0) ==
+					(y + 1) * (width + 2) + (x + 1)) {
+				warf_pos = wormhole_pos(wormhole_id, 1);
+			} else {
+				warf_pos = wormhole_pos(wormhole_id, 0);
+			}
+
+			y = warf_pos / (width + 2) - 1;
+			x = warf_pos % (width + 2) - 1;
+		}
+		else {
+			if (obj != way) {
+				dir = reflect_dir(obj, dir);
+				current_point++;
+			}
+		}
+	}
+
+	y = start_y;
+	x = start_x;
+	dir = start_dir;
+	current_point = 0;
+	while (1) {
+		y += y_dir[dir];
+		x += x_dir[dir];
+		obj = map(y, x);
+
+		if (y == start_y && x == start_x)
+			break;
+
+		if (obj == way) {
+			if (point_trace(y, x) == current_point) {
+				point = end_point - current_point;
+
+				if (max_point < point) {
+					max_point = point;
+				}
+				break;
+			}
+		}
+		else if (obj >= wormhole_1 && obj <= wormhole_5) {
+			wormhole_id = obj - wormhole_1;
+			if (wormhole_pos(wormhole_id, 0) ==
+					(y + 1) * (width + 2) + (x + 1)) {
+				warf_pos = wormhole_pos(wormhole_id, 1);
+			} else {
+				warf_pos = wormhole_pos(wormhole_id, 0);
+			}
+
+			y = warf_pos / (width + 2) - 1;
+			x = warf_pos % (width + 2) - 1;
+		}
+		else {
+			dir = reflect_dir(obj, dir);
+			current_point++;
+		}
+	}
+
+	return max_point;
+}
+
 int follow_paths(int y, int x, int width, enum object *map, int *wormhole_pos,
-	int *point_trace, int *tracer)
+	int *point_trace, int *tracer, struct out_dirs *pos_checked)
 {
 	int path_point;
 	int max_point;
@@ -262,6 +363,7 @@ int follow_paths(int y, int x, int width, enum object *map, int *wormhole_pos,
 
 	for (dir = N; dir <= W; dir++) {
 		obj = map(y, x);
+
 		ref_dir = reflect_dir(obj, dir);
 		if (ref_dir == opposite[dir] || obj == blackhole) {
 			dirqueue[dq_rear] = opposite[dir];
@@ -273,7 +375,8 @@ int follow_paths(int y, int x, int width, enum object *map, int *wormhole_pos,
 	for (dq_front = 0; dq_front < dq_rear; dq_front++) {
 		start_dir = dirqueue[dq_front];
 		path_point = __follow_path(y, x, width, start_dir, map,
-				wormhole_pos, point_trace, tracer);
+				wormhole_pos, point_trace, tracer,
+				pos_checked);
 		if (max_point < path_point)
 			max_point = path_point;
 	}
@@ -284,12 +387,21 @@ int follow_paths(int y, int x, int width, enum object *map, int *wormhole_pos,
 int do_pinball(int width, enum object *map, int *wormhole_pos)
 {
 	int x, y;
+	enum direction dir;
 	int path_point;
 	int max_point;
 
-	int pos_checked[(N_MAX + 2) * (N_MAX + 2)] = {0, };
+	struct out_dirs pos_checked[(N_MAX + 2) * (N_MAX + 2)];
 	int point_trace[(N_MAX + 2) * (N_MAX + 2)] = {0, };
 	int tracer[(N_MAX + 2) * (N_MAX + 2)] = {0, };
+
+	for (y = -1; y <= width; y++) {
+		for (x = -1; x <= width; x++) {
+			for (dir = N; dir <= W; dir++) {
+				pos_checked(y, x).dirs[dir] = 0;
+			}
+		}
+	}
 
 	max_point = 0;
 	for (y = -1; y <= width; y++) {
@@ -301,12 +413,33 @@ int do_pinball(int width, enum object *map, int *wormhole_pos)
 				continue;
 
 			path_point = follow_paths(y, x, width, map,
-					wormhole_pos, point_trace, tracer);
+					wormhole_pos, point_trace, tracer,
+					pos_checked);
 			if (max_point < path_point)
 				max_point = path_point;
 		}
 	}
 
+	for (y = 0; y < width; y++) {
+		for (x = 0; x < width; x++) {
+			if (map(y, x) == way || map(y, x) == blackhole)
+				continue;
+
+			if (map(y, x) >= wormhole_1 && map(y, x) <= wormhole_5)
+				continue;
+			for (dir = N; dir <= W; dir++) {
+				if (pos_checked(y, x).dirs[dir] == 0) {
+					path_point = __follow_path_cycle(y, x,
+							width, dir,
+							map, wormhole_pos,
+							point_trace, tracer,
+							pos_checked);
+					if (max_point < path_point)
+						max_point = path_point;
+				}
+			}
+		}
+	}
 	return max_point;
 }
 
