@@ -1,6 +1,6 @@
 SRCS		:= $(wildcard *.c)
 OBJS		:= $(SRCS:.c=.o)
-TARGET		:= pinball
+TARGET		:= robotcleaner
 
 CC		:= gcc
 CFLAGS		:= -std=c99 -Wall
