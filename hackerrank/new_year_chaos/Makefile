@@ -7,10 +7,10 @@ CFLAGS		:= -std=c99 -Wall
 
 
 all: $(TARGET)
-	$(CC) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
 $(TARGET): $(SRCS)
-	$(CC) -c $(SRCS)
+	$(CC) $(CFLAGS) -c $(SRCS)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
