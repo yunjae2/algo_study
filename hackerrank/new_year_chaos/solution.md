@@ -5,7 +5,7 @@ O(n^2)은 timeout. O(nlogn) 또는 O(n)이 필요하다.
 
 
 ### Time complexity
-O(N<sup>2</sup>)
+O(N)
 
 
 ### Idea
