@@ -13,28 +13,54 @@ char** split_string(char*);
 
 // Complete the minimumBribes function below.
 void minimumBribes(int q_count, int* q) {
-	int i, j;
-	int bribe_cnt = 0;
-	int bribe_by_ith;
 	int chaotic = 0;
+	int unfound[2] = {-1, -1};
+	int cnt = 0;
+	int nr_bribes = 0;
+	int x;
 
-	for (i = 0; i < q_count; i++) {
-		bribe_by_ith = 0;
-		for (j = i + 1; j < q_count; j++) {
-			if (q[i] > q[j])
-				bribe_by_ith++;
-		}
-		if (bribe_by_ith > 2) {
-			chaotic = 1;
-			break;
-		}
-		bribe_cnt += bribe_by_ith;
+	if (q[0] > 3) {
+		chaotic = 1;
 	}
-	
+	else {
+		// Initialization of unfound[]
+		for (int num = 1; num <= 3; num++) {
+			if (q[0] != num) {
+				unfound[cnt] = num;
+				cnt++;
+			}
+		}
+
+		for (int pos = 2; pos <= q_count; pos++) {
+			x = q[pos - 1];
+			if (x > pos + 2) {
+				chaotic = 1;
+				break;
+			}
+
+			// if x > pos, then there were no bribes between x and fronts.
+			if (x <= pos) {
+				// '-2' is for two unfounds
+				nr_bribes += ((pos + 1) - x - 2);
+
+				if (unfound[0] <= x)
+					nr_bribes++;
+				if (unfound[1] <= x)
+					nr_bribes++;
+			}
+
+			// update unfounds
+			if (x == unfound[0])
+				unfound[0] = pos + 2;
+			else if (x == unfound[1])
+				unfound[1] = pos + 2;
+		}
+	}
+
 	if (chaotic)
 		printf("Too chaotic\n");
 	else
-		printf("%d\n", bribe_cnt);
+		printf("%d\n", nr_bribes);
 }
 
 int main()
