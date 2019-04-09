@@ -8,13 +8,42 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define swap(x, y)	{\
+	(x) = (x) + (y);\
+	(y) = (x) - (y);\
+	(x) = (x) - (y);\
+}
+
 char* readline();
 char** split_string(char*);
 
 // Complete the formingMagicSquare function below.
 int formingMagicSquare(int s_rows, int s_columns, int** s) {
+	int cost = 0;
 
+	// edges and vertices should be {2, 4, 6, 8} and {1, 3, 7, 9}
+	int magic_vertices[4] = {2, 4, 6, 8};
+	int magic_edges[4] = {1, 3, 7, 9};
+	int vertices[4] = {s[0][0], s[0][2], s[2][0], s[2][2]};
+	int edges[4] = {s[0][1], s[1][0], s[1][2], s[2][1]};
 
+	int i, j;
+
+	// Center element should be 5
+	cost += abs(s[1][1] - 5);
+
+	for (i = 0; i < 4; i++) {
+		for (j = i + 1; j < 4; j++) {
+			if (vertices[i] > vertices[j])
+				swap(vertices[i], vertices[j]);
+			if (edges[i] > edges[j])
+				swap(edges[i], edges[j]);
+		}
+		cost += abs(vertices[i] - magic_vertices[i]);
+		cost += abs(edges[i] - magic_edges[i]);
+	}
+
+	return cost;
 }
 
 int main()
