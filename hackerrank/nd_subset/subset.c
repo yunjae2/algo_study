@@ -29,10 +29,15 @@ int nonDivisibleSubset(int k, int S_count, int* S) {
 		count[remainder]++;
 	}
 	
-	max_size = count[0];
-	for (i = 1; i <= k / 2; i++) {
+	for (i = 1; 2 * i < k; i++) {
 		max_size += max(count[i], count[k - i]);
 	}
+
+	if (count[0] > 0)
+		max_size++;
+
+	if (k % 2 == 0 && count[k / 2] > 0)
+		max_size++;
 
 	return max_size;
 }
