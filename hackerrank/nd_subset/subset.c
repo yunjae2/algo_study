@@ -11,10 +11,30 @@
 char* readline();
 char** split_string(char*);
 
+int max(int a, int b)
+{
+	return a > b ? a : b;
+}
+
 // Complete the nonDivisibleSubset function below.
 int nonDivisibleSubset(int k, int S_count, int* S) {
+	int i;
+	int remainder;
 
+	int *count = (int *)malloc(k * sizeof(int));
+	int max_size = 0;
 
+	for (i = 0; i < S_count; i++) {
+		remainder = S[i] % k;
+		count[remainder]++;
+	}
+	
+	max_size = count[0];
+	for (i = 1; i <= k / 2; i++) {
+		max_size += max(count[i], count[k - i]);
+	}
+
+	return max_size;
 }
 
 int main()
