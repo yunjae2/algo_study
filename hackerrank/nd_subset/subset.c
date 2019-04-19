@@ -24,6 +24,10 @@ int nonDivisibleSubset(int k, int S_count, int* S) {
 	int *count = (int *)malloc(k * sizeof(int));
 	int max_size = 0;
 
+	// Initialize count array
+	for (i = 0; i < k; i++)
+		count[i] = 0;
+
 	for (i = 0; i < S_count; i++) {
 		remainder = S[i] % k;
 		count[remainder]++;
