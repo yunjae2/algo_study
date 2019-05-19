@@ -3,14 +3,19 @@
 
 #define MAX(x, y) (x > y ? x : y)
 
-int count_nr_triplets(int n, unsigned long long r, unsigned long long *arr)
+int compare(const void *a, const void *b)
 {
-	int nr_triplets;
-	int *nr_prevs;
+	return (int)(*(long long *)a - *(long long *)b);
+}
+
+int count_nr_triplets(int n, long long r, long long *arr)
+{
+	long long nr_triplets;
+	long long *nr_prevs;
 	int matched, start_pos;
 	int i, j;
 
-	nr_prevs = (int *)calloc(n, sizeof(int));
+	nr_prevs = (long long *)calloc(n, sizeof(long long));
 	nr_triplets = 0;
 
 	start_pos = 1;
@@ -44,21 +49,22 @@ int count_nr_triplets(int n, unsigned long long r, unsigned long long *arr)
 int main(void)
 {
 	int n;
-	unsigned long long r;
-	unsigned long long *arr;
-	int result;
+	long long r;
+	long long *arr;
+	long long result;
 	int i;
 
 	fscanf(stdin, "%d %llu\n", &n, &r);
 
-	arr = (unsigned long long *)malloc(n * sizeof(unsigned long long));
+	arr = (long long *)malloc(n * sizeof(long long));
 	for (i = 0; i < n; i++) {
-		fscanf(stdin, "%llu", &arr[i]);
+		fscanf(stdin, "%lld", &arr[i]);
 	}
+	qsort(arr, n, sizeof(long long), compare);
 
 	result = count_nr_triplets(n, r, arr);
 
-	fprintf(stdout, "%d\n", result);
+	fprintf(stdout, "%lld\n", result);
 
 	free(arr);
 	return 0;
