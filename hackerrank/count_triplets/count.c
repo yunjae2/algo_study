@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int count_nr_triplets(int n, int r, int *arr)
+int count_nr_triplets(int n, unsigned long long r, unsigned long long *arr)
 {
 	int nr_triplets;
 	int *nr_prevs;
@@ -30,16 +30,17 @@ int count_nr_triplets(int n, int r, int *arr)
 
 int main(void)
 {
-	int n, r;
-	int *arr;
+	int n;
+	unsigned long long r;
+	unsigned long long *arr;
 	int result;
 	int i;
 
-	fscanf(stdin, "%d %d\n", &n, &r);
+	fscanf(stdin, "%d %llu\n", &n, &r);
 
-	arr = (int *)malloc(n * sizeof(int));
+	arr = (unsigned long long *)malloc(n * sizeof(unsigned long long));
 	for (i = 0; i < n; i++) {
-		fscanf(stdin, "%d", &arr[i]);
+		fscanf(stdin, "%llu", &arr[i]);
 	}
 
 	result = count_nr_triplets(n, r, arr);
