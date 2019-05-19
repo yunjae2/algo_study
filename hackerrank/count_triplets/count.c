@@ -1,28 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX(x, y) (x > y ? x : y)
+
 int count_nr_triplets(int n, unsigned long long r, unsigned long long *arr)
 {
 	int nr_triplets;
 	int *nr_prevs;
+	int matched, start_pos;
 	int i, j;
 
 	nr_prevs = (int *)calloc(n, sizeof(int));
 	nr_triplets = 0;
 
-	j = 0;
+	start_pos = 1;
 	for (i = 0; i < n; i++) {
-		for (; j < n; j++) {
+		matched = 0;
+		for (j = start_pos; j < n; j++) {
 			if (arr[j] > r * arr[i])
 				break;
-			//printf("comparing %d, %d\n", arr[i], arr[j]);
 			if (arr[j] == r * arr[i]) {
-				if (nr_prevs[i])
+				matched = 1;
+				break;
+			}
+		}
+		start_pos = MAX(i + 2, j);
+
+		if (matched) {
+			for (; j < n; j++) {
+				if (arr[j] > r * arr[i])
+					break;
+				if (nr_prevs[i]) {
 					nr_triplets += nr_prevs[i];
+				}
 				nr_prevs[j]++;
 			}
 		}
-		j--;
 	}
 
 	return nr_triplets;
